@@ -1,9 +1,16 @@
 name: Example Workflow
 on:
-  workflow_call:
+  workflow_dispatch:   
 
 jobs:
+  event-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine triggering event
+        run: echo "This workflow was triggered by a '${{ github.event_name }}' event"
+
   build:
+    needs: event-check  # Ensures build waits for event-check to complete
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -12,7 +19,7 @@ jobs:
         run: echo "Building the project..."
 
   test:
-    needs: build  # This job will only run after the 'build' job completes
+    needs: build  # Only runs after build completes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,7 +28,7 @@ jobs:
         run: echo "Running tests..."
 
   deploy:
-    needs: test  # This job will only run after the 'test' job completes
+    needs: test  # Only runs after test completes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
